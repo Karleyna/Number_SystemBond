@@ -63,23 +63,21 @@ namespace Number_SystemBond
         {34,"Y"},
         {35,"Z"},
     };
-        private static double decimalNumber;
-        private static int n = 0, n2 = 0;
-        private static string s;
+        private static double decimalNumber = 0;
         private static string anynumber = " ";
         private static int c2 = 0;
         
 
-        private static void ConverTen()
+        private static float ConverTen(int n, string str)
         {          
             string[] number;
-            if (s.Contains(","))  //встречается ли символ в строке
+            if (str.Contains(","))  //встречается ли символ в строке
             {
-                number = s.Split(',');//razdelitel
+                number = str.Split(',');//razdelitel
             }
             else
             {
-                number = s.Split('.');
+                number = str.Split('.');
             }
             int c = number[0].Length - 1;
 
@@ -87,31 +85,59 @@ namespace Number_SystemBond
 
             for (int i = 0; i < number[0].Length; i++)
             {
-                if (!int.TryParse(number[0][i].ToString(), out tmp))
+                try
                 {
-                    tmp = digits[number[0][i]];
+                    if (!int.TryParse(number[0][i].ToString(), out tmp))
+                    {
+                        tmp = digits[number[0][i]];
+                    }
+                    if (tmp >= n)// проверка на то, не превышает ли число систему счисления исходную
+                    {
+                        return n;
+                    }
+                }
+                catch
+                {
+
                 }
                 decimalNumber += tmp * Math.Pow(n, c);
                 c--;
             }
 
-            if (number.Length > 1)
+            if (number.Length > 1 && number.Length < 3)
             {
-                for (int i = 1; i <= number[1].Length; i++)
-                {
-                    if (!int.TryParse(number[1][i - 1].ToString(), out tmp))
+                try {
+                    for (int i = 1; i <= number[1].Length; i++)
                     {
-                        tmp = digits[number[1][i - 1]];
+                        if (!int.TryParse(number[1][i - 1].ToString(), out tmp))
+                        {
+                            tmp = digits[number[1][i - 1]];
+                        }
+
+                        decimalNumber += tmp * Math.Pow(n, -i);
                     }
 
-                    decimalNumber += tmp * Math.Pow(n, -i);
                 }
+                catch (KeyNotFoundException)// проверка на сторонние символы
+                {
+                    return n;
+                }
+            }                 
+            else
+            {
+               // проверка на то, есть ли сторонние символы в строке
+                return n;
             }
+            return (float)decimalNumber;
         }
-        private static void ConvertOutTen()
+        private static string ConvertOutTen(int n2)
         {
             string[] number2;
-            string s2 = Convert.ToString(decimalNumber);//float
+            if (decimalNumber == 0)
+            {
+                return Convert.ToString(n2);
+            }
+            string s2 = Convert.ToString((float)decimalNumber);//float
             number2 = s2.Split(',');
             int anyNumber = 0;
             int part = Convert.ToInt32(number2[0]);
@@ -158,44 +184,53 @@ namespace Number_SystemBond
                             if (part < 10)
                                 anynumber += Convert.ToString(part);
                             else
-                                anynumber += digits2[part];//sdelat polem
+                                anynumber += digits2[part];
 
                         }
                     }
                     
                 }
+            return anynumber;
 
         }
-        public static string ConverterNS(int n1, int n22, string str)
+        public static string ConverterNS(int n, int n2, string str)
         {
             
-            s = str.ToUpper();
-            n = n1;
-            n2 =n22;
-            ConverTen();
-            if (n22 == 10)
+             str.ToUpper();
+            if (n == n2)
             {
-               str = Convert.ToString((float)(decimalNumber));
+                return str;
+            }
+            
+           float number = ConverTen(n,str);
+            if (number != n)
+            {
+                if (n2 == 10)
+                {
+                    str = Convert.ToString(number);
+                }
+                else
+                {
+                    ConvertOutTen(n2);
+                    str = "";
+                    for (int i = c2; i > 0; i--)
+                    {
+                        str += anynumber[i];
+                    }
+
+                    for (int i = c2 + 1; i < anynumber.Length; i++)
+                    {
+                        str += anynumber[i];
+                    }
+
+                }
+
+                return str;
             }
             else
             {
-                ConvertOutTen();
-                str = "";
-                Console.Write($"Result: ({n1}) {s} = ({n22}) ");
-                for (int i = c2; i > 0; i--)
-                {
-                    str +=anynumber[i];
-                }
-              
-                for (int i = c2 + 1; i < anynumber.Length; i++)
-                {
-                    str += anynumber[i];
-                }
-
+                return "Mistake!";
             }
-            
-
-            return str;
         }
 
     }
