@@ -5,7 +5,7 @@ namespace Number_SystemBond
 {
    public static class ConvertNumberSystem 
    {
-        static Dictionary<char, int> digits = new Dictionary<char, int>()
+        static Dictionary<char, int> digits = new Dictionary<char, int>()//словарь для перевода из любой в десятичную
     {
         {'A',10},
         {'B',11},
@@ -34,7 +34,7 @@ namespace Number_SystemBond
         {'Y',34},
         {'Z',35},
     };
-        static Dictionary<int, string> digits2 = new Dictionary<int, string>()
+        static Dictionary<int, string> digits2 = new Dictionary<int, string>()//словарь для перевода в любую из 10
     {
         {10,"A"},
         {11,"B"},
@@ -68,7 +68,7 @@ namespace Number_SystemBond
         private static int c2 = 0;
         
 
-        private static float ConverTen(int n, string str)
+        private static float ConverTen(int n, string str)//перевод из любой в десятичную
         {          
             string[] number;
             if (str.Contains(","))  //встречается ли символ в строке
@@ -79,7 +79,7 @@ namespace Number_SystemBond
             {
                 number = str.Split('.');
             }
-            int c = number[0].Length - 1;
+            int c = number[0].Length - 1;//переменая для длины
 
             int tmp = 0;
 
@@ -87,7 +87,7 @@ namespace Number_SystemBond
             {
                 try
                 {
-                    if (!int.TryParse(number[0][i].ToString(), out tmp))
+                    if (!int.TryParse(number[0][i].ToString(), out tmp))//если не число то сверяем со словарем и переводим значение из буквы в цифру
                     {
                         tmp = digits[number[0][i]];
                     }
@@ -96,22 +96,26 @@ namespace Number_SystemBond
                         return n;
                     }
                 }
-                catch
+                catch (KeyNotFoundException)// проверка на сторонние символы
                 {
-
+                    return n;
                 }
-                decimalNumber += tmp * Math.Pow(n, c);
+                decimalNumber += tmp * Math.Pow(n, c);//перевод в десятичную
                 c--;
             }
 
-            if (number.Length > 1 && number.Length < 3)
+            if (number.Length > 1 && number.Length < 3)//проверка на дробную часть и на то, нет ли лишних знаков препинания
             {
                 try {
                     for (int i = 1; i <= number[1].Length; i++)
                     {
-                        if (!int.TryParse(number[1][i - 1].ToString(), out tmp))
+                        if (!int.TryParse(number[1][i - 1].ToString(), out tmp))//если не число то сверяем со словарем и переводим значение из буквы в цифру
                         {
                             tmp = digits[number[1][i - 1]];
+                        }
+                        if (tmp >= n)// проверка на то, не превышает ли число систему счисления исходную
+                        {
+                            return n;
                         }
 
                         decimalNumber += tmp * Math.Pow(n, -i);
@@ -133,14 +137,14 @@ namespace Number_SystemBond
         private static string ConvertOutTen(int n2)
         {
             string[] number2;
-            if (decimalNumber == 0)
+            if (decimalNumber == 0)//проверка на то нет ли ошибок во введенном числе(если есть то перевода не состоялось и перемная равна 0)
             {
                 return Convert.ToString(n2);
             }
-            string s2 = Convert.ToString((float)decimalNumber);//float
-            number2 = s2.Split(',');
-            int anyNumber = 0;
-            int part = Convert.ToInt32(number2[0]);
+            string s2 = Convert.ToString((float)decimalNumber);//float переводим в строку для разделения
+            number2 = s2.Split(',');//разделяем на целую и дробную часть
+            int anyNumber = 0;//переменная для записи числа
+            int part = Convert.ToInt32(number2[0]);//переменная для расчётов
            
             
                 while (part >= 1)
@@ -149,42 +153,43 @@ namespace Number_SystemBond
                     {
                         anyNumber = part % n2;
                         part /= n2;
-                        anynumber += Convert.ToString(anyNumber);
-                        c2++;
+                        anynumber += Convert.ToString(anyNumber);//записываем остаток от деления
+                        c2++;//считаем длину целой части
                     }
 
                     else
                     {
                         anyNumber = part % n2;
                         part /= n2;
-                        anynumber += digits2[anyNumber];
+                        anynumber += digits2[anyNumber];//если число больше 10 то записываем  значение из словаря
                         c2++;
                     }
                 }
                 
                 if (number2.Length > 1)
                 {
-                    anynumber += '.';
+                    anynumber += '.';//разделяем дробную часть
                     part = Convert.ToInt32(number2[1]);
-                    if ((part * n2) % Math.Pow(10, number2[1].Length) == 0)
+                    if ((part * n2) % Math.Pow(10, number2[1].Length) == 0)//считаем дробную часть
+
                     {
                         part = (int)((part * n2) / Math.Pow(10, number2[1].Length));
                         if (part < 10)
-                            anynumber += Convert.ToString(part);
+                            anynumber += Convert.ToString(part);//цифра
                         else
-                            anynumber += digits2[part];
+                            anynumber += digits2[part];//буква
 
                     }
                     else
                     {
                         while ((part * n2) % Math.Pow(10, number2[1].Length) > 0)
-                        {
-                            part = (int)((part * n2) % Math.Pow(10, number2[1].Length));
-                            part = (int)((part * n2) / Math.Pow(10, number2[1].Length));
+                    {
+                            part = (int)((part * n2) % Math.Pow(10, number2[1].Length));//записываем остаток
+                            part = (int)((part * n2) / Math.Pow(10, number2[1].Length));//записываем целую часть от деления
                             if (part < 10)
-                                anynumber += Convert.ToString(part);
+                                anynumber += Convert.ToString(part);//цифра
                             else
-                                anynumber += digits2[part];
+                                anynumber += digits2[part];//буква
 
                         }
                     }
@@ -197,23 +202,22 @@ namespace Number_SystemBond
         {
             
              str.ToUpper();
-            if (n == n2)
+            float number = ConverTen(n,str);
+            if (number != n)//если не равняется n значит ошибок нет и продолжаем считать дальше
             {
-                return str;
-            }
-            
-           float number = ConverTen(n,str);
-            if (number != n)
-            {
-                if (n2 == 10)
+                if (n == n2)
+                {
+                    return str;
+                }
+                if (n2 == 10)//если система счисления равна 10 то сразу выводим переведенный результат
                 {
                     str = Convert.ToString(number);
                 }
                 else
                 {
-                    ConvertOutTen(n2);
+                    ConvertOutTen(n2);//переводим в нужную систему
                     str = "";
-                    for (int i = c2; i > 0; i--)
+                    for (int i = c2; i > 0; i--) //разворачиваем строку
                     {
                         str += anynumber[i];
                     }
@@ -225,7 +229,7 @@ namespace Number_SystemBond
 
                 }
 
-                return str;
+                return str;//результат
             }
             else
             {
